@@ -217,7 +217,7 @@ const MortgageCalculator = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
-      <header className="bg-emerald-600 text-white py-6 shadow-md">
+      <header className="text-white py-6 shadow-md bg-emerald-700">
         <div className="container mx-auto px-4">
           <h1 className="text-3xl font-bold">MortgageMatters Calculator</h1>
           <p className="mt-2 text-emerald-100">
@@ -226,9 +226,9 @@ const MortgageCalculator = () => {
         </div>
       </header>
 
-      <div className="bg-emerald-700 text-white py-4 shadow-md">
+      <div className="bg-emerald-900 text-white py-4 shadow-md">
         <div className="container mx-auto px-4">
-          <p className="text-sm text-emerald-100">
+          <p className="text-sm text-emerald-50">
             Unlike traditional calculators that show vague lifetime projections,
             focus on what matters - your current renewal period. Make decisions
             with confidence based on <br />
@@ -237,7 +237,7 @@ const MortgageCalculator = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8 mx-10 mb-14 flex-grow">
+      <main className="container px-20 pt-8 mx-0 pb-14 flex-grow bg-cream-300">
         <div className="max-w-5xl mx-auto">
           <div
             className={`grid grid-cols-1 ${
@@ -369,7 +369,7 @@ const MortgageCalculator = () => {
                   )}
                 </div>
 
-                <div className="bg-emerald-50 p-4 rounded-md border border-emerald-100">
+                <div className="p-4 rounded-md border border-emerald-100 bg-cream-300">
                   <h3 className="text-lg font-medium text-emerald-800 mb-3">
                     Proposed Renewal Terms
                   </h3>
@@ -469,7 +469,7 @@ const MortgageCalculator = () => {
                     onClick={() =>
                       setShowOptionalSettings(!showOptionalSettings)
                     }
-                    className="text-blue-600 font-medium flex items-center"
+                    className="font-medium flex items-center text-charcoal-600"
                   >
                     {showOptionalSettings ? '− Hide' : '+ Show'} Optional
                     Settings
@@ -625,7 +625,7 @@ const MortgageCalculator = () => {
                       <button
                         type="button"
                         onClick={exportResults}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-center"
+                        className="hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-center bg-charcoal-500"
                       >
                         Save Results
                       </button>
@@ -640,7 +640,7 @@ const MortgageCalculator = () => {
 
       {/* Comparison section */}
       {comparisons.length > 0 && (
-        <div className="bg-gray-100 border-t border-gray-200">
+        <div className="bg-cream-200 border-t border-gray-200">
           <div
             className="container mx-auto px-4 py-5 flex justify-between items-center cursor-pointer"
             onClick={() => {
@@ -656,7 +656,7 @@ const MortgageCalculator = () => {
             }}
           >
             <div className="flex items-center">
-              <span className="text-emerald-700 font-medium flex items-center">
+              <span className="text-charcoal-600 font-medium flex items-center">
                 Your Comparisons ({comparisons.length})
                 <svg
                   className={`ml-2 w-4 h-4 transition-transform duration-200 ${
@@ -690,10 +690,10 @@ const MortgageCalculator = () => {
           {isComparisonOpen && (
             <div className="container mx-auto px-4 pb-6">
               <div className="max-w-6xl mx-auto">
-                <div className="bg-white rounded-lg shadow-md">
+                <div className="rounded-lg shadow-md">
                   <table className="min-w-full">
                     <thead>
-                      <tr className="bg-gray-50 border-b border-gray-200">
+                      <tr className="bg-cream-300 border-b border-gray-200">
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Terms
                         </th>
@@ -780,9 +780,9 @@ const MortgageCalculator = () => {
         </div>
       )}
 
-      <footer className="bg-emerald-900 text-white py-6">
+      <footer className="bg-emerald-800 text-white py-6">
         <div className="container mx-auto px-4">
-          <p className="text-center text-emerald-200 text-sm">
+          <p className="text-center text-emerald-100 text-sm">
             This calculator provides estimates only. Actual mortgage payments
             may vary. Please consult with a financial advisor before making
             decisions.
