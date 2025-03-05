@@ -17,22 +17,65 @@ const MortgageCalculator = () => {
   const [monthlyPayment, setMonthlyPayment] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [showResultsPanel, setShowResultsPanel] = useState(false);
 
   // State for currency
   const [currency, setCurrency] = useState('$');
   const [animatedCurrencyIcon, setAnimatedCurrencyIcon] = useState('$');
+  const [userEditedCurrency, setUserEditedCurrency] = useState(false);
+
+  // Add these comparisons
+  const [comparisons, setComparisons] = useState([]);
+  const [isComparisonOpen, setIsComparisonOpen] = useState(false);
 
   // Animation for currency symbol
   useEffect(() => {
     const symbols = ['$', '£', '€'];
     let index = 0;
+
+    if (userEditedCurrency) {
+      setAnimatedCurrencyIcon(currency);
+      return;
+    }
+
     const interval = setInterval(() => {
       index = (index + 1) % symbols.length;
       setAnimatedCurrencyIcon(symbols[index]);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userEditedCurrency]);
+
+  // Add this function to add the current calculation to comparisons
+  const addToComparison = () => {
+    if (!monthlyPayment) return; // Don't add if no calculation
+
+    const newComparison = {
+      id: Date.now(), // Unique identifier
+      mortgageYears,
+      mortgageAmount,
+      interestRate,
+      termLength,
+      oneOffCost,
+      monthlyPayment,
+      totalPayment: monthlyPayment * termLength * 12,
+      currencySymbol: currency,
+    };
+
+    setComparisons([...comparisons, newComparison]);
+    setIsComparisonOpen(true); // Auto-open when adding
+  };
+
+  // Function to remove a comparison
+  const removeComparison = (id) => {
+    setComparisons(comparisons.filter((item) => item.id !== id));
+  };
+
+  // Function to reset all comparisons
+  const resetComparisons = () => {
+    setComparisons([]);
+    setIsComparisonOpen(false);
+  };
 
   // Format currency
   const formatCurrency = (value) => {
@@ -139,6 +182,7 @@ const MortgageCalculator = () => {
       setMonthlyPayment(monthlyPaymentValue);
       setIsCalculating(false);
       setShowResults(true);
+      setShowResultsPanel(true);
     }, 1000);
   };
 
@@ -163,6 +207,7 @@ const MortgageCalculator = () => {
     setShowOptionalSettings(false);
     setErrors({});
     setShowResults(false);
+    setShowResultsPanel(false);
   };
 
   // Print or save results
@@ -174,9 +219,9 @@ const MortgageCalculator = () => {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="bg-emerald-600 text-white py-6 shadow-md">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">MortgageMatter Calculator</h1>
+          <h1 className="text-3xl font-bold">MortgageMatters Calculator</h1>
           <p className="mt-2 text-emerald-100">
-            Evaluate your options during your next mortgage renewal period
+            Evaluate your options during your next fixed mortgage renewal period
           </p>
         </div>
       </header>
@@ -185,67 +230,92 @@ const MortgageCalculator = () => {
         <div className="container mx-auto px-4">
           <p className="text-sm text-emerald-100">
             Unlike traditional calculators that show vague lifetime projections,
-            focus on what matters — your current renewal period. Make decisions
-            with confidence based on real commitments, not hypothetical 30-year
-            scenarios.
+            focus on what matters - your current renewal period. Make decisions
+            with confidence based on <br />
+            real commitments, not hypothetical 30-year scenarios.
           </p>
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8 mx-10 flex-grow">
+      <main className="container mx-auto px-4 py-8 mx-10 mb-14 flex-grow">
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div
+            className={`grid grid-cols-1 ${
+              showResultsPanel ? 'lg:grid-cols-3' : 'lg:grid-cols-1'
+            } gap-8`}
+          >
             {/* Input Section */}
-            <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+            <div
+              className={`bg-white rounded-lg shadow-lg p-6 ${
+                showResultsPanel
+                  ? 'lg:col-span-2'
+                  : 'lg:max-w-2xl lg:mx-auto lg:w-full'
+              }`}
+            >
               <h2 className="text-xl font-semibold mb-4">
-                Your Mortgage Details
+                Your Renewal Details
               </h2>
 
               <div className="space-y-4">
+                <div className="mt-1 mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Currency
+                  </label>
+                  <div className="relative">
+                    <div className="relative inline-block">
+                      <select
+                        value={currency}
+                        onChange={(e) => {
+                          setCurrency(e.target.value);
+                          console.log('changed curr');
+                          setUserEditedCurrency(true);
+                        }}
+                        className="w-32 py-3 px-4 pr-8 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 appearance-none"
+                      >
+                        <option value="$">$ USD</option>
+                        <option value="£">£ GBP</option>
+                        <option value="€">€ EUR</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <svg
+                          className="h-4 w-4 text-gray-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
-                  <div className="mt-1 mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Currency
-                      <span
-                        className="ml-1 inline-block"
-                        title="Select your preferred currency"
-                      >
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mortgage Years Remaining
+                    <span className="ml-1 inline-block relative">
+                      <div className="relative group">
                         <Info size={16} className="text-gray-500" />
-                      </span>
-                    </label>
-                    <select
-                      value={currency}
-                      onChange={(e) => {
-                        setCurrency(e.target.value);
-                      }}
-                      className="w-30 py-3 px-4 pr-8 rounded-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="$">$ USD</option>
-                      <option value="£">£ GBP</option>
-                      <option value="€">€ EUR</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Mortgage Years Remaining
-                      <span
-                        className="ml-1 inline-block"
-                        title="Enter the number of years left on your mortgage"
-                      >
-                        <Info size={16} className="text-gray-500" />
-                      </span>
-                    </label>
-                  </div>
+                        <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-48 p-2 bg-gray-800 text-xs text-white rounded shadow-lg z-50">
+                          Enter the number of years left on your mortgage
+                        </div>
+                      </div>
+                    </span>
+                  </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <input
                       type="number"
-                      value={mortgageYears}
+                      value={mortgageYears === 0 ? '' : mortgageYears}
                       onChange={(e) =>
                         setMortgageYears(parseFloat(e.target.value) || 0)
                       }
                       min="0.1"
                       max="40"
-                      step="0.1"
+                      step="1"
                       className={`block w-full pr-14 py-3 px-4 rounded-md border ${
                         errors.mortgageYears
                           ? 'border-red-300'
@@ -266,11 +336,13 @@ const MortgageCalculator = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Mortgage Amount Remaining
-                    <span
-                      className="ml-1 inline-block"
-                      title="Enter the current outstanding balance of your mortgage"
-                    >
-                      <Info size={16} className="text-gray-500" />
+                    <span className="ml-1 inline-block relative">
+                      <div className="relative group">
+                        <Info size={16} className="text-gray-500" />
+                        <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-48 p-2 bg-gray-800 text-xs text-white rounded shadow-lg z-50">
+                          Enter the current outstanding balance of your mortgage
+                        </div>
+                      </div>
                     </span>
                   </label>
                   <div className="mt-1 relative rounded-md shadow-sm">
@@ -281,7 +353,7 @@ const MortgageCalculator = () => {
                     </div>
                     <input
                       type="text"
-                      value={mortgageAmount.toLocaleString()}
+                      value={mortgageAmount === 0 ? '' : mortgageAmount}
                       onChange={handleAmountChange}
                       className={`block w-full pl-10 py-3 px-4 rounded-md border ${
                         errors.mortgageAmount
@@ -306,20 +378,26 @@ const MortgageCalculator = () => {
                     <div className="flex justify-between items-start">
                       <label className="block text-sm font-medium text-gray-700 mb-1 pt-5 w-1/3">
                         Interest Rate
-                        <span
-                          className="ml-1 inline-block"
-                          title="Enter the annual interest rate offered for the renewal"
-                        >
-                          <Info size={16} className="text-gray-500" />
+                        <span className="ml-1 inline-block relative">
+                          <div className="relative group">
+                            <Info size={16} className="text-gray-500" />
+                            <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-48 p-2 bg-gray-800 text-xs text-white rounded shadow-lg z-50">
+                              Enter the annual interest rate offered for the
+                              renewal
+                            </div>
+                          </div>
                         </span>
                       </label>
                       <div className="mt-1 relative rounded-md shadow-sm w-2/3">
                         <input
                           type="number"
-                          value={interestRate}
-                          onChange={(e) =>
-                            setInterestRate(parseFloat(e.target.value) || 0)
-                          }
+                          value={interestRate === 0 ? '' : interestRate}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setInterestRate(
+                              value === '' ? 0 : parseFloat(value)
+                            );
+                          }}
                           min="0.001"
                           step="0.001"
                           className={`block w-full pr-8 py-3 px-4 rounded-md border ${
@@ -342,20 +420,25 @@ const MortgageCalculator = () => {
                     <div className="flex justify-between items-start">
                       <label className="block text-sm font-medium text-gray-700 mb-1 pt-5 w-1/3">
                         Term Length
-                        <span
-                          className="ml-1 inline-block"
-                          title="Enter the number of years for the renewal term"
-                        >
-                          <Info size={16} className="text-gray-500" />
+                        <span className="ml-1 inline-block relative">
+                          <div className="relative group">
+                            <Info size={16} className="text-gray-500" />
+                            <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-48 p-2 bg-gray-800 text-xs text-white rounded shadow-lg z-50">
+                              Enter the number of years for the renewal term
+                            </div>
+                          </div>
                         </span>
                       </label>
                       <div className="mt-1 relative rounded-md shadow-sm w-2/3">
                         <input
                           type="number"
-                          value={termLength}
-                          onChange={(e) =>
-                            setTermLength(parseInt(e.target.value) || 1)
-                          }
+                          value={termLength === 0 ? '' : termLength}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTermLength(
+                              value === '' ? 0 : parseInt(value) || 0
+                            );
+                          }}
                           min="1"
                           max="30"
                           step="1"
@@ -396,18 +479,21 @@ const MortgageCalculator = () => {
                     <div className="mt-3 p-4 bg-gray-50 rounded-md border border-gray-200">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          One-off Cost
-                          <span
-                            className="ml-1 inline-block"
-                            title="Enter any one-time fees associated with the renewal"
-                          >
-                            <Info size={16} className="text-gray-500" />
+                          Upfront Fees
+                          <span className="ml-1 inline-block relative">
+                            <div className="relative group">
+                              <Info size={16} className="text-gray-500" />
+                              <div className="hidden group-hover:block absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-48 p-2 bg-gray-800 text-xs text-white rounded shadow-lg z-50">
+                                Some renewals offer a reduced rate with upfront
+                                fees
+                              </div>
+                            </div>
                           </span>
                         </label>
                         <div className="mt-1 relative rounded-md shadow-sm">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span className="text-gray-500 sm:text-sm">
-                              {currency}
+                              {animatedCurrencyIcon}
                             </span>
                           </div>
                           <input
@@ -478,59 +564,223 @@ const MortgageCalculator = () => {
               </div>
             </div>
 
-            {/* Results Section */}
+            {/* Results Section with animation */}
             <div
-              className={`bg-white rounded-lg shadow-lg p-6 ${
-                showResults ? 'opacity-100' : 'opacity-50'
+              className={`transition-all duration-600 ease-in-out ${
+                showResultsPanel
+                  ? 'opacity-100 max-h-screen'
+                  : 'opacity-0 max-h-0 overflow-hidden'
               }`}
             >
-              <h2 className="text-xl font-semibold mb-4">Results Summary</h2>
+              <div className="bg-white rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">Results Summary</h2>
 
-              {!showResults ? (
-                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-                  <p className="text-lg mb-2">
-                    Enter your mortgage details
-                    <br /> and click Calculate
-                  </p>
-                  <p className="text-sm mt-3">Your results will appear here</p>
-                </div>
-              ) : (
-                <div>
-                  <div className="bg-emerald-50 p-4 rounded-md">
-                    <p className="text-sm font-medium text-emerald-800 mb-1">
-                      Monthly Payment
+                {!showResults ? (
+                  <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                    <p className="text-lg mb-2">
+                      Enter your mortgage details
+                      <br /> and click Calculate
                     </p>
-                    <p className="text-3xl font-bold text-emerald-900">
-                      {formatCurrency(monthlyPayment)}
+                    <p className="text-sm mt-3">
+                      Your results will appear here
                     </p>
                   </div>
+                ) : (
+                  <div>
+                    <div className="bg-emerald-50 p-4 rounded-md">
+                      <p className="text-sm font-medium text-emerald-800 mb-1">
+                        Monthly Payments
+                      </p>
+                      <p className="text-3xl font-bold text-emerald-900">
+                        {formatCurrency(monthlyPayment)}
+                      </p>
+                    </div>
 
-                  <div className="bg-gray-50 my-4 p-4 rounded-md">
-                    <p className="text-sm font-medium text-gray-700 mb-1">
-                      Total Payments (over {termLength} years)
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {formatCurrency(monthlyPayment * termLength * 12)}
-                    </p>
-                  </div>
+                    <div className="bg-gray-50 my-4 p-4 rounded-md">
+                      <p className="text-sm font-medium text-gray-700 mb-1">
+                        Total Payments (over {termLength} years)
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900">
+                        {formatCurrency(monthlyPayment * termLength * 12)}
+                      </p>
+                    </div>
 
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={exportResults}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      Print / Save Results
-                    </button>
+                    <div className="flex flex-col space-y-3 mt-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addToComparison();
+                          setTimeout(() => {
+                            window.scrollTo({
+                              top: document.documentElement.scrollHeight,
+                              behavior: 'smooth',
+                            });
+                          }, 50);
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 text-center"
+                      >
+                        Add to Comparison
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={exportResults}
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md shadow transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 text-center"
+                      >
+                        Save Results
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="bg-emerald-900 text-white py-6 mt-8">
+      {/* Comparison section */}
+      {comparisons.length > 0 && (
+        <div className="bg-gray-100 border-t border-gray-200">
+          <div
+            className="container mx-auto px-4 py-5 flex justify-between items-center cursor-pointer"
+            onClick={() => {
+              setIsComparisonOpen(!isComparisonOpen);
+              setTimeout(() => {
+                if (!isComparisonOpen) {
+                  window.scrollTo({
+                    top: document.documentElement.scrollHeight,
+                    behavior: 'smooth',
+                  });
+                }
+              }, 50);
+            }}
+          >
+            <div className="flex items-center">
+              <span className="text-emerald-700 font-medium flex items-center">
+                Your Comparisons ({comparisons.length})
+                <svg
+                  className={`ml-2 w-4 h-4 transition-transform duration-200 ${
+                    isComparisonOpen ? 'transform rotate-180' : ''
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </span>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                resetComparisons();
+              }}
+              className="text-red-600 text-sm hover:text-red-800"
+            >
+              Reset All
+            </button>
+          </div>
+
+          {isComparisonOpen && (
+            <div className="container mx-auto px-4 pb-6">
+              <div className="max-w-6xl mx-auto">
+                <div className="bg-white rounded-lg shadow-md">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Terms
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Interest Rate
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Monthly Payment
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Total Cost
+                        </th>
+                        <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisons.map((item) => (
+                        <tr key={item.id} className="border-b border-gray-200">
+                          <td className="px-4 py-3 text-sm">
+                            {item.currencySymbol}
+                            {item.mortgageAmount.toLocaleString()} over{' '}
+                            {item.termLength} years
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {item.interestRate}%
+                          </td>
+                          <td className="px-4 py-3 text-sm font-medium text-emerald-800">
+                            {new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency:
+                                item.currencySymbol === '£'
+                                  ? 'GBP'
+                                  : item.currencySymbol === '€'
+                                  ? 'EUR'
+                                  : 'USD',
+                            }).format(item.monthlyPayment)}
+                          </td>
+                          <td className="px-4 py-3 text-sm">
+                            {new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency:
+                                item.currencySymbol === '£'
+                                  ? 'GBP'
+                                  : item.currencySymbol === '€'
+                                  ? 'EUR'
+                                  : 'USD',
+                            }).format(item.totalPayment)}
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({item.termLength} years)
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-right">
+                            <button
+                              onClick={() => removeComparison(item.id)}
+                              className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
+                              aria-label="Remove comparison"
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      <footer className="bg-emerald-900 text-white py-6">
         <div className="container mx-auto px-4">
           <p className="text-center text-emerald-200 text-sm">
             This calculator provides estimates only. Actual mortgage payments
