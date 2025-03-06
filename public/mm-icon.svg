@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Cream Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="#FFFDD0"/>
+  
+  <!-- Emerald-600 Dollar Sign -->
+  <path d="M134 75C134 61.7 123.3 51 110 51H90C76.7 51 66 61.7 66 75C66 88.3 76.7 99 90 99H110C123.3 99 134 109.7 134 123C134 136.3 123.3 147 110 147H90C76.7 147 66 136.3 66 123" 
+        stroke="#059669" 
+        stroke-width="16" 
+        stroke-linecap="round"
+        fill="none"/>
+  <line x1="102" y1="28" x2="102" y2="172" 
+        stroke="#059669" 
+        stroke-width="16" 
+        stroke-linecap="round"/>
+</svg>
