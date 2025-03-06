@@ -22,14 +22,13 @@ export default function RenewalDetails({
   const [userEditedCurrency, setUserEditedCurrency] = useState(false);
 
   useEffect(() => {
-    console.log(details);
-    const symbols = ['$', '£', '€'];
-    let index = 0;
-
     if (userEditedCurrency) {
       setAnimatedCurrencyIcon(details.currency);
       return;
     }
+
+    const symbols = ['$', '£', '€'];
+    let index = 0;
 
     const interval = setInterval(() => {
       index = (index + 1) % symbols.length;
@@ -37,7 +36,7 @@ export default function RenewalDetails({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [userEditedCurrency]);
+  }, [details, userEditedCurrency]);
 
   const resetForm = () => {
     onSetMortgageYears(25);
@@ -256,7 +255,7 @@ export default function RenewalDetails({
                       onSetInterestRate(value === '' ? 0 : parseFloat(value));
                     }}
                     min="0.001"
-                    step="0.001"
+                    step="0.01"
                     className={`block w-full pr-8 py-3 px-4 rounded-md border ${
                       errors.interestRate ? 'border-red-300' : 'border-gray-300'
                     } focus:outline-none focus:ring-blue-500 focus:border-blue-500`}

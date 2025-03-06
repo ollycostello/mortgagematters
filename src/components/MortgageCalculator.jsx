@@ -132,7 +132,7 @@ export default function MortgageCalculator() {
           comparisonTableOpen={isComparisonOpen}
           onToggleComparisonTable={setIsComparisonOpen}
           onResetComparisons={resetComparisons}
-          onRemoveComparisons={removeComparison}
+          onRemoveComparison={removeComparison}
         />
       )}
       <Footer />

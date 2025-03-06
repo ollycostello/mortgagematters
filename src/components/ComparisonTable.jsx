@@ -3,16 +3,16 @@ import React from 'react';
 export default function ComparisonTable({
   comparisons,
   comparisonTableOpen,
-  toggleComparisonTable,
-  resetComparisons,
-  removeComparison,
+  onToggleComparisonTable,
+  onResetComparisons,
+  onRemoveComparison,
 }) {
   return (
     <div className="bg-cream-200 border-t border-gray-200">
       <div
         className="container mx-auto px-4 py-5 flex justify-between items-center cursor-pointer"
         onClick={() => {
-          toggleComparisonTable(!comparisonTableOpen);
+          onToggleComparisonTable(!comparisonTableOpen);
           setTimeout(() => {
             if (!comparisonTableOpen) {
               window.scrollTo({
@@ -47,7 +47,7 @@ export default function ComparisonTable({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            resetComparisons();
+            onResetComparisons();
           }}
           className="text-red-600 text-sm hover:text-red-800"
         >
@@ -117,7 +117,7 @@ export default function ComparisonTable({
                       </td>
                       <td className="px-4 py-3 text-sm text-right">
                         <button
-                          onClick={() => removeComparison(item.id)}
+                          onClick={() => onRemoveComparison(item.id)}
                           className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
                           aria-label="Remove comparison"
                         >
